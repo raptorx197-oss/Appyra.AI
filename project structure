@@ -32,3 +32,4 @@ appyra-v1/
 ├─ tailwind.config.js
 ├─ package.json
 └─ README.md
+npm install next@latest
