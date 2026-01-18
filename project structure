@@ -1,0 +1,34 @@
+appyra-v1/
+├─ app/
+│  ├─ api/
+│  │  ├─ generate/
+│  │  │  └─ route.ts
+│  │  └─ feedback/
+│  │     └─ route.ts
+│  │
+│  ├─ generate/
+│  │  └─ page.tsx
+│  │
+│  ├─ preview/
+│  │  └─ page.tsx
+│  │
+│  ├─ layout.tsx
+│  └─ page.tsx
+│
+├─ components/
+│  ├─ GeneratorForm.tsx
+│  ├─ WebsitePreview.tsx
+│  └─ FeedbackModal.tsx
+│
+├─ lib/
+│  └─ openai.ts
+│
+├─ styles/
+│  └─ globals.css
+│
+├─ .env.example
+├─ next.config.js
+├─ postcss.config.js
+├─ tailwind.config.js
+├─ package.json
+└─ README.md
