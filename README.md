@@ -13,8 +13,45 @@ approval.
 
 ```bash
 npm install
+npm run ready    # verify everything works before you demo or deploy
 npm run dev      # http://localhost:3000
 ```
+
+`npm run ready` is the one command to run before showing this to anyone. It
+checks the Node version, the build config, lint, the test suite, a production
+build, and — the step CI alone does not give you — **it boots the real server
+and fetches a real page**. A green build does not prove the app serves a
+request; that gap is exactly how the Vercel preview shipped a passing build
+that returns HTTP 500 on every route.
+
+It prints a per-step verdict and, on failure, what to do about it:
+
+```
+Appyra readiness check
+
+✓ Node 22.6 or newer        v22.22.2
+✓ dependencies installed    node_modules present
+✓ build config present      4 files
+✓ lint                      no findings
+✓ tests                     16/16 passing
+✓ production build          28 routes
+✓ live boot check           GET / → 200, database seeded
+
+Ready. 7/7 checks passed.
+```
+
+### Try it as a user
+
+Seeded restaurants are **Habesha Kitchen** (`/r/habesha-kitchen`) and
+**Addis Cafe** (`/r/addis-cafe`). Browse a menu, add items, place a pickup
+order, or book a table — no account needed.
+
+For the staff side, sign in at `/dashboard` with
+`staff@habeshakitchen.et` / `appyra123` (dev fixture). The **AI Assistant**
+tab is where the authorization model is visible: ask it for the menu and it
+answers directly; ask it to change a price and it can only file a proposal
+you approve under **Proposals**; ask it to `call change_payout_destination`
+and it is blocked, with the attempt recorded in **Activity Log**.
 
 Requires **Node 22.6+** — the data layer uses the built-in `node:sqlite`, and
 the test runner uses `--experimental-strip-types`.

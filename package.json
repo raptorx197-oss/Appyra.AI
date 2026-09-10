@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "rm -f data/appyra.test.db && APPYRA_DB_PATH=data/appyra.test.db node --experimental-strip-types --test src/lib/ai/core.test.ts"
+    "test": "rm -f data/appyra.test.db && APPYRA_DB_PATH=data/appyra.test.db node --experimental-strip-types --test src/lib/ai/core.test.ts",
+    "ready": "node scripts/ready.mjs"
   },
   "dependencies": {
     "next": "16.3.4",

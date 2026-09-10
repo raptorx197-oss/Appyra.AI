@@ -37,3 +37,7 @@ next-env.d.ts
 
 # local sqlite prototype database
 /data
+
+# next.js generated agent rules (regenerated on every dev run)
+/AGENTS.md
+/CLAUDE.md
