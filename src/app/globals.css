@@ -1,0 +1,26 @@
+/*
+ * source(none) + explicit @source: this project isn't a git repository, so
+ * Tailwind v4's automatic content detection (which relies on .gitignore to
+ * exclude node_modules) has nothing to bound it and ends up scanning
+ * node_modules wholesale — picking up unrelated class-like strings from
+ * dependency source files and, worse, silently dropping some of ours.
+ * Scoping explicitly to src/ fixes both.
+ */
+@import "tailwindcss" source(none);
+@source "..";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/*
+ * No plain `body { background; color }` rule here on purpose: Tailwind's
+ * utilities live inside `@layer utilities`, and per the CSS Cascade Layers
+ * spec, un-layered rules always beat layered ones regardless of
+ * specificity — a plain `body {}` rule here would silently override any
+ * background or text color utility class applied to `body` (this is what
+ * create-next-app's default template ships, and it bit exactly this case).
+ * Background and text color for `body` are set via Tailwind classes in
+ * layout.tsx instead.
+ */

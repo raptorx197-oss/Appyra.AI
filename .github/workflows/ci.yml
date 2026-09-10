@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ready:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      # One command, identical to what a contributor runs locally:
+      # lint + tests + production build + a live boot check that fetches a
+      # real page. A green build alone does not prove the app serves.
+      - run: npm run ready
