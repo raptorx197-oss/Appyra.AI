@@ -16,6 +16,9 @@ import { existsSync, rmSync } from "node:fs";
 import process from "node:process";
 
 const PORT = Number(process.env.READY_PORT || 3111);
+// Spawn the real binary, not the `npx` wrapper: npx does not forward signals
+// to what it launches.
+const NEXT_BIN = "node_modules/next/dist/bin/next";
 const results = [];
 let hardFail = false;
 
@@ -99,10 +102,16 @@ if (!hardFail) {
 async function step_serve() {
   process.stdout.write(`${c.dim}…${c.reset} live boot check`);
   rmSync("data/appyra.ready.db", { force: true });
-  const server = spawn("npx", ["next", "start", "-p", String(PORT)], {
+  // detached:true makes the child a process-group leader so the whole group
+  // can be signalled below. Without it, SIGTERM reaches only the wrapper and
+  // next-server survives as an orphan holding the port — one leaked process
+  // per run, and EADDRINUSE on the next one.
+  const server = spawn(process.execPath, [NEXT_BIN, "start", "-p", String(PORT)], {
     env: { ...process.env, APPYRA_DB_PATH: "data/appyra.ready.db" },
     stdio: ["ignore", "pipe", "pipe"],
+    detached: true,
   });
+  const exited = new Promise((resolve) => server.once("exit", resolve));
   let serverLog = "";
   server.stdout.on("data", (d) => { serverLog += d; });
   server.stderr.on("data", (d) => { serverLog += d; });
@@ -140,8 +149,25 @@ async function step_serve() {
     console.log(`${c.dim}${String(err.message).replace(/^/gm, "    ")}${c.reset}`);
     results.push({ name: "live boot check", ok: false });
   } finally {
-    server.kill("SIGTERM");
+    await stopServer(server, exited);
     rmSync("data/appyra.ready.db", { force: true });
+  }
+}
+
+/** Signals the server's whole process group and waits for it to actually go. */
+async function stopServer(server, exited) {
+  const signalGroup = (sig) => {
+    try { process.kill(-server.pid, sig); }
+    catch { try { server.kill(sig); } catch { /* already gone */ } }
+  };
+  signalGroup("SIGTERM");
+  const died = await Promise.race([
+    exited.then(() => true),
+    new Promise((r) => setTimeout(() => r(false), 5000)),
+  ]);
+  if (!died) {
+    signalGroup("SIGKILL");
+    await Promise.race([exited, new Promise((r) => setTimeout(r, 2000))]);
   }
 }
 
